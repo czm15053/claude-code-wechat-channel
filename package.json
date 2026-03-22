@@ -5,7 +5,8 @@
   "type": "module",
   "bin": "./server.ts",
   "scripts": {
-    "start": "bun install --no-summary && bun server.ts"
+    "start": "bun server.ts",
+    "install-deps": "npm install --registry https://registry.npmmirror.com"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
