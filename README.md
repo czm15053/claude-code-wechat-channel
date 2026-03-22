@@ -13,15 +13,14 @@
 ## 安装
 
 ```bash
-git clone https://github.com/你的用户名/claude-code-wechat-channel.git wechat-channel
+git clone https://github.com/czm15053/claude-code-wechat-channel.git wechat-channel
 cd wechat-channel
 ./setup.sh
 ```
 
 `setup.sh` 会自动：
 - 检测 bun 路径
-- 克隆并构建 `wechat-ilink-client`（如需要）
-- 安装依赖
+- 安装 npm 依赖
 - 生成 `.mcp.json`（包含当前机器的绝对路径）
 
 ## 使用
@@ -61,6 +60,7 @@ claude --add-dir ./ --dangerously-load-development-channels server:wechat
 | 文件 | 说明 |
 |------|------|
 | `server.ts` | MCP Server 核心 |
+| `ilink.ts` | 内置的 iLink 协议客户端 |
 | `login.ts` | 独立扫码登录脚本 |
 | `test-recv.ts` | 消息接收测试脚本 |
 | `setup.sh` | 自动安装脚本 |
@@ -76,12 +76,11 @@ claude --add-dir ./ --dangerously-load-development-channels server:wechat
 | `sync-buf.json` | 同步游标（断线恢复） |
 | `access.json` | 配对/授权配置 |
 | `debug.log` | 调试日志 |
-| `inbox/` | 接收的图片文件 |
 
 ## 注意事项
 
 - ⚠️ 建议使用**小号**测试，不要用主力微信号
-- iLink 协议来自微信官方平台，但客户端库 `wechat-ilink-client` 是社区维护
+- iLink 协议来自微信官方平台，协议实现已内置（`ilink.ts`），无外部依赖
 - Session 会过期，过期后需重新运行 `bun login.ts` 扫码
 - 微信有消息频率限制，长文本会自动分块发送
 

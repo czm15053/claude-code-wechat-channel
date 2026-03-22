@@ -69,9 +69,8 @@ try {
 
   console.log(`\n✅ 登录成功！`)
   console.log(`  accountId: ${creds.accountId}`)
-  console.log(`  凭证已保存到: ${CREDS_PATH}`)
+  console.log(`  凭证已保存到: ~/.claude/channels/wechat/credentials.json`)
   console.log(`\n现在可以启动 Claude Code 使用微信 Channel 了：`)
-  console.log(`  cd ${process.cwd()}`)
   console.log(`  claude --add-dir ./ --dangerously-load-development-channels server:wechat\n`)
 } catch (err) {
   console.error(`\n❌ 登录异常: ${err}`)
