@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "wechat": {
-      "command": "/Users/zmc/.bun/bin/bun",
-      "args": ["server.ts"],
-      "cwd": "/Users/zmc/Desktop/cc/wechat-channel"
-    }
-  }
-}
