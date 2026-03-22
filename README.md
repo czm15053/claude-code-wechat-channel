@@ -2,12 +2,13 @@
 
 通过微信 iLink 协议将微信消息接入 Claude Code。
 
-## 原理
+## 架构
 
-```
-微信用户 ──▶ iLink API (long-poll) ──▶ wechat-channel (MCP Server) ──▶ Claude Code
-                                    ◀── reply tool ◀──────────────────◀──
-```
+![架构概览](images/architecture.png)
+
+## 消息流程
+
+![消息流程](images/message-flow.png)
 
 ## 安装
 
@@ -52,6 +53,8 @@ claude --add-dir ./ --dangerously-load-development-channels server:wechat
 ```
 /access-wechat pair <code>
 ```
+
+![配对流程](images/pairing-flow.png)
 
 ## 文件说明
 
