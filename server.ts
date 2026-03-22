@@ -17,8 +17,8 @@ import {
   normalizeAccountId,
   MessageType,
   MessageItemType,
-} from 'wechat-ilink-client'
-import type { WeixinMessage, MessageItem } from 'wechat-ilink-client'
+} from './ilink'
+import type { WeixinMessage, MessageItem } from './ilink'
 import { join } from 'path'
 import {
   mkdirSync,
@@ -461,29 +461,14 @@ async function handleInbound(
 }
 
 // ═══════════════════════════════════════════
-// 图片下载
+// 图片下载（TODO: 后续实现）
 // ═══════════════════════════════════════════
 
 async function downloadMedia(
-  item: MessageItem,
+  _item: MessageItem,
 ): Promise<string | undefined> {
-  if (!wechatClient) return undefined
-  try {
-    const downloaded = await wechatClient.downloadMedia(item)
-    if (!downloaded) return undefined
-
-    mkdirSync(INBOX_DIR, { recursive: true })
-    const ext =
-      downloaded.kind === 'image' ? '.jpg' :
-      downloaded.kind === 'video' ? '.mp4' :
-      downloaded.kind === 'voice' ? '.silk' : '.bin'
-    const path = join(INBOX_DIR, `${Date.now()}-${randomBytes(4).toString('hex')}${ext}`)
-    writeFileSync(path, downloaded.data)
-    return path
-  } catch (err) {
-    process.stderr.write(`wechat channel: 媒体下载失败: ${err}\n`)
-    return undefined
-  }
+  // 媒体下载暂未内联实现，后续按需添加
+  return undefined
 }
 
 // ═══════════════════════════════════════════

@@ -2,18 +2,11 @@
 /**
  * 微信消息接收测试脚本
  *
- * 独立运行，不依赖 Claude Code / MCP。
- * 验证 iLink long-poll 是否能收到消息。
- *
  * 用法：bun test-recv.ts
  */
 
-import {
-  WeChatClient,
-  MessageType,
-  MessageItemType,
-} from 'wechat-ilink-client'
-import type { WeixinMessage, MessageItem } from 'wechat-ilink-client'
+import { WeChatClient, MessageType, MessageItemType } from './ilink'
+import type { WeixinMessage } from './ilink'
 import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
 import { homedir } from 'os'
@@ -35,7 +28,6 @@ const client = new WeChatClient({
   baseUrl: creds.baseUrl,
 })
 
-// 监听所有事件
 client.on('message', (msg: WeixinMessage) => {
   console.log(`\n📨 收到消息:`)
   console.log(`   type: ${msg.message_type}`)
@@ -51,11 +43,8 @@ client.on('message', (msg: WeixinMessage) => {
     }
   }
 
-  // 提取文本
   const text = WeChatClient.extractText(msg)
-  if (text) {
-    console.log(`   extracted text: "${text}"`)
-  }
+  if (text) console.log(`   extracted text: "${text}"`)
 })
 
 client.on('error', (err: Error) => {

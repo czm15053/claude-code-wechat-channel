@@ -2,17 +2,10 @@
 /**
  * 微信扫码登录脚本
  *
- * 独立运行，不需要 Claude Code。
- * 扫码成功后凭证保存到 ~/.claude/channels/wechat/credentials.json
- *
- * 用法：
- *   bun login.ts
+ * 用法：bun login.ts
  */
 
-import {
-  WeChatClient,
-  normalizeAccountId,
-} from 'wechat-ilink-client'
+import { WeChatClient, normalizeAccountId } from './ilink'
 import { join } from 'path'
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'fs'
 import { homedir } from 'os'
@@ -44,8 +37,6 @@ try {
     onQRCode(url) {
       console.log('请用微信扫描以下二维码链接：\n')
       console.log(`  ${url}\n`)
-
-      // 尝试用 qrcode-terminal 渲染
       try {
         const qrt = require('qrcode-terminal')
         qrt.generate(url, { small: true })
@@ -55,15 +46,9 @@ try {
     },
     onStatus(status) {
       switch (status) {
-        case 'scaned':
-          console.log('✅ 已扫码，请在手机上确认...')
-          break
-        case 'expired':
-          console.log('⏰ 二维码已过期，刷新中...')
-          break
-        case 'confirmed':
-          console.log('🎉 登录确认成功！')
-          break
+        case 'scaned': console.log('✅ 已扫码，请在手机上确认...'); break
+        case 'expired': console.log('⏰ 二维码已过期，刷新中...'); break
+        case 'confirmed': console.log('🎉 登录确认成功！'); break
       }
     },
   })
@@ -73,7 +58,6 @@ try {
     process.exit(1)
   }
 
-  // 保存凭证
   const creds = {
     accountId: normalizeAccountId(result.accountId!),
     token: result.botToken!,
