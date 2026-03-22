@@ -43,8 +43,20 @@ const CREDS_PATH = join(STATE_DIR, 'credentials.json')
 const SYNC_BUF_PATH = join(STATE_DIR, 'sync-buf.json')
 const ACCESS_PATH = join(STATE_DIR, 'access.json')
 const INBOX_DIR = join(STATE_DIR, 'inbox')
+const DEBUG_LOG = join(STATE_DIR, 'debug.log')
 
 mkdirSync(STATE_DIR, { recursive: true })
+
+// 调试日志写到文件
+import { appendFileSync } from 'fs'
+function dbg(msg: string): void {
+  const ts = new Date().toISOString().slice(11, 19)
+  const line = `[${ts}] ${msg}\n`
+  try { appendFileSync(DEBUG_LOG, line) } catch {}
+  process.stderr.write(`wechat: ${msg}\n`)
+}
+
+dbg('=== server.ts 启动 ===')
 
 // ═══════════════════════════════════════════
 // 凭证持久化
@@ -537,8 +549,13 @@ function startMessageLoop(): void {
 
   wechatClient.on('message', async (msg: WeixinMessage) => {
     try {
+      process.stderr.write(`wechat channel: [DEBUG] 收到消息 type=${msg.message_type} from=${msg.from_user_id}\n`)
+
       // 只处理用户消息
-      if (msg.message_type !== MessageType.USER) return
+      if (msg.message_type !== MessageType.USER) {
+        process.stderr.write(`wechat channel: [DEBUG] 跳过非用户消息 type=${msg.message_type}\n`)
+        return
+      }
 
       const senderId = msg.from_user_id ?? '(unknown)'
       const senderName = senderId // iLink 没有用户名，用 ID 代替
@@ -546,6 +563,7 @@ function startMessageLoop(): void {
 
       // 提取文本
       const text = WeChatClient.extractText(msg)
+      process.stderr.write(`wechat channel: [DEBUG] 用户消息 from=${senderId} text="${text?.slice(0, 50)}"\n`)
 
       // 处理媒体
       let imagePath: string | undefined
@@ -570,9 +588,20 @@ function startMessageLoop(): void {
     )
   })
 
+  wechatClient.on('poll', (resp: any) => {
+    const msgCount = resp.msgs?.length ?? 0
+    if (msgCount > 0) {
+      process.stderr.write(`wechat channel: [DEBUG] poll 返回 ${msgCount} 条消息\n`)
+    }
+  })
+
   // 启动 long-poll
+  process.stderr.write('wechat channel: [DEBUG] 正在启动 long-poll...\n')
   wechatClient
     .start({ loadSyncBuf, saveSyncBuf })
+    .then(() => {
+      process.stderr.write('wechat channel: [DEBUG] long-poll 循环结束\n')
+    })
     .catch((err) => {
       process.stderr.write(`wechat channel: long-poll 启动失败: ${err}\n`)
     })
@@ -621,22 +650,23 @@ setInterval(pollApproved, 2000)
 // ═══════════════════════════════════════════
 
 // 1. 连接 MCP（Claude Code 通过 stdio 与本进程通信）
+dbg('MCP connecting...')
 await mcp.connect(new StdioServerTransport())
+dbg('MCP connected!')
 
 // 2. 尝试从保存的凭证恢复微信连接
 const savedCreds = loadCredentials()
 if (savedCreds) {
-  process.stderr.write(`wechat channel: 发现已保存的凭证，恢复连接...\n`)
+  dbg(`发现凭证 accountId=${savedCreds.accountId}`)
   wechatClient = new WeChatClient({
     accountId: savedCreds.accountId,
     token: savedCreds.token,
     baseUrl: savedCreds.baseUrl,
   })
+  dbg('WeChatClient 创建完成，启动消息循环...')
   startMessageLoop()
 } else {
-  process.stderr.write(
-    'wechat channel: 未找到凭证。请在 Claude Code 中运行 /configure-wechat 进行扫码登录。\n',
-  )
+  dbg('未找到凭证')
 }
 
-process.stderr.write('wechat channel: 已启动，等待微信消息...\n')
+dbg('server.ts 启动完成')

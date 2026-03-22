@@ -1,8 +1,9 @@
 {
   "mcpServers": {
     "wechat": {
-      "command": "bun",
-      "args": ["run", "--cwd", "${CLAUDE_PLUGIN_ROOT}", "--shell=bun", "--silent", "start"]
+      "command": "/Users/zmc/.bun/bin/bun",
+      "args": ["server.ts"],
+      "cwd": "/Users/zmc/Desktop/cc/wechat-channel"
     }
   }
 }
